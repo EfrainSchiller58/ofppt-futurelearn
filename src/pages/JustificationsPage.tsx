@@ -21,6 +21,7 @@ const JustificationsPage = () => {
   const [reason, setReason] = useState("");
   const [selectedAbsence, setSelectedAbsence] = useState<number | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewingId, setPreviewingId] = useState<number | null>(null);
   const { toast } = useToast();
 
   const { data: justificationsRes, isLoading: loadingJustifications } = useQuery({
@@ -166,7 +167,12 @@ const JustificationsPage = () => {
                   </div>
                   <p className="text-sm text-muted-foreground line-clamp-1">{j.reason}</p>
                   <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
-                    <span>{j.file_name}</span>
+                    <button
+                      onClick={() => setPreviewingId(j.id)}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {j.file_name}
+                    </button>
                     <span>·</span>
                     <span>Submitted {new Date(j.submitted_at).toLocaleDateString()}</span>
                   </div>
@@ -189,6 +195,81 @@ const JustificationsPage = () => {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {previewingId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setPreviewingId(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="glass-panel p-6 max-w-4xl max-h-[90vh] w-full overflow-auto"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">Document Preview</h2>
+                <button
+                  onClick={() => setPreviewingId(null)}
+                  className="p-1 hover:bg-secondary rounded-md text-muted-foreground"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {(() => {
+                const justification = justifications.find((j) => j.id === previewingId);
+                if (!justification?.file_path) {
+                  return <p className="text-muted-foreground">File not found</p>;
+                }
+
+                if (justification.file_type === "pdf") {
+                  return (
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground">{justification.file_name}</p>
+                      <iframe
+                        src={justification.file_path}
+                        className="w-full h-[600px] rounded-lg border border-white/[0.08]"
+                        title="PDF Preview"
+                      />
+                      <a
+                        href={justification.file_path}
+                        download={justification.file_name}
+                        className="inline-flex items-center gap-2 text-primary hover:underline text-sm"
+                      >
+                        Download PDF
+                      </a>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground">{justification.file_name}</p>
+                      <img
+                        src={justification.file_path}
+                        alt={justification.file_name}
+                        className="max-w-full h-auto rounded-lg border border-white/[0.08]"
+                      />
+                      <a
+                        href={justification.file_path}
+                        download={justification.file_name}
+                        className="inline-flex items-center gap-2 text-primary hover:underline text-sm"
+                      >
+                        Download Image
+                      </a>
+                    </div>
+                  );
+                }
+              })()}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

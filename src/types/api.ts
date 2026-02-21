@@ -91,6 +91,7 @@ export interface Justification {
   hours: number;
   reason: string;
   file_name: string;
+  file_path?: string | null;
   file_type: "pdf" | "image";
   submitted_at: string;
   status: "pending" | "approved" | "rejected";
