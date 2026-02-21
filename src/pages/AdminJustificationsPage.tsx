@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, Image, Clock, CheckCircle, XCircle, Search, Filter, MessageSquare, X, Check, Ban } from "lucide-react";
+import { FileText, Image, Clock, CheckCircle, XCircle, Search, Filter, MessageSquare, X, Check, Ban, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -129,9 +129,16 @@ const AdminJustificationsPage = () => {
               <motion.div key={j.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ delay: i * 0.04 }} className={`glass-panel p-5 transition-all duration-300 ${j.status === "pending" ? "border-warning/20" : ""}`}>
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${j.file_type === "pdf" ? "bg-destructive/10" : "bg-primary/10"}`}>
+                    <button
+                      onClick={() => setPreviewingId(j.id)}
+                      className={`relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group cursor-pointer transition-all hover:scale-110 ${j.file_type === "pdf" ? "bg-destructive/10 hover:bg-destructive/20" : "bg-primary/10 hover:bg-primary/20"}`}
+                      title="Click to view document"
+                    >
                       {j.file_type === "pdf" ? <FileText className="w-5 h-5 text-destructive" /> : <Image className="w-5 h-5 text-primary" />}
-                    </div>
+                      <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center shadow-lg animate-pulse">
+                        <Eye className="w-2.5 h-2.5 text-primary-foreground" />
+                      </span>
+                    </button>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <p className="font-semibold text-sm">{j.student_name}</p>

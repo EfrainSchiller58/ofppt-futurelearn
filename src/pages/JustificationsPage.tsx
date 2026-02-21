@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileText, Image, Clock, CheckCircle, XCircle, Send, Plus, X } from "lucide-react";
+import { Upload, FileText, Image, Clock, CheckCircle, XCircle, Send, Plus, X, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -154,9 +154,16 @@ const JustificationsPage = () => {
           return (
             <motion.div key={j.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="glass-panel-hover p-5">
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${j.file_type === "pdf" ? "bg-destructive/10" : "bg-primary/10"}`}>
+                <button
+                  onClick={() => setPreviewingId(j.id)}
+                  className={`relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group cursor-pointer transition-all hover:scale-110 ${j.file_type === "pdf" ? "bg-destructive/10 hover:bg-destructive/20" : "bg-primary/10 hover:bg-primary/20"}`}
+                  title="Click to view document"
+                >
                   {j.file_type === "pdf" ? <FileText className="w-5 h-5 text-destructive" /> : <Image className="w-5 h-5 text-primary" />}
-                </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center shadow-lg animate-pulse">
+                    <Eye className="w-2.5 h-2.5 text-primary-foreground" />
+                  </span>
+                </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="font-medium text-sm">{j.date} — {j.hours}h absence</p>
