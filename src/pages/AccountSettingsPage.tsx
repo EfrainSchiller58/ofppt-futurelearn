@@ -4,12 +4,14 @@ import { UserCircle, Upload, KeyRound } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useSuccessNotification } from "@/components/SuccessNotification";
 import { api } from "@/services/api";
 import { useAuthStore } from "@/stores/authStore";
 
 const AccountSettingsPage = () => {
   const { user, setUser } = useAuthStore();
   const { toast } = useToast();
+  const { showSuccess, NotificationComponent } = useSuccessNotification();
 
   const [firstName, setFirstName] = useState(user?.first_name ?? "");
   const [lastName, setLastName] = useState(user?.last_name ?? "");
@@ -36,7 +38,12 @@ const AccountSettingsPage = () => {
         profile_image: image,
       });
       setUser(updatedUser);
-      toast({ title: "Profile updated", description: "Your account information was saved." });
+      showSuccess({
+        title: "Profile Updated",
+        description: "Your account information has been saved successfully. Changes are now active.",
+        icon: "sparkles",
+        accentColor: "#3b82f6",
+      });
     } catch (err: any) {
       toast({ title: "Update failed", description: err.message || "Could not save profile", variant: "destructive" });
     } finally {
@@ -66,7 +73,12 @@ const AccountSettingsPage = () => {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      toast({ title: "Password updated", description: "Password changed successfully." });
+      showSuccess({
+        title: "Password Updated",
+        description: "Your password has been changed successfully. A confirmation email has been sent.",
+        icon: "shield",
+        accentColor: "#10b981",
+      });
     } catch (err: any) {
       toast({ title: "Password update failed", description: err.message || "Could not update password", variant: "destructive" });
     } finally {
@@ -75,7 +87,9 @@ const AccountSettingsPage = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <>
+      {NotificationComponent}
+      <div className="space-y-6 max-w-3xl">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-display font-bold">Account Settings</h1>
         <p className="text-muted-foreground text-sm mt-1">Manage your personal information and credentials</p>
@@ -156,6 +170,7 @@ const AccountSettingsPage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
