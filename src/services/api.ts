@@ -97,7 +97,7 @@ export const api = {
   },
 
   changePassword(data: { current_password?: string; new_password: string; new_password_confirmation: string }) {
-    return request<{ message: string; user: User }>("/me/change-password", {
+    return request<{ message: string; user: User; email_status?: string; email_error?: string; email_to?: string }>("/me/change-password", {
       method: "PATCH",
       body: JSON.stringify(data),
     });
