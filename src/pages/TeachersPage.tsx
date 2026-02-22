@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSuccessNotification } from "@/components/SuccessNotification";
 import type { Teacher } from "@/types/api";
 
 const subjects = ["JavaScript / React", "Réseaux / Électronique", "Base de données / UML", "PHP / Laravel", "Mathématiques", "Python", "DevOps"];
@@ -21,6 +22,7 @@ const TeachersPage = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
   const { toast } = useToast();
+  const { showSuccess, NotificationComponent } = useSuccessNotification();
 
   const [form, setForm] = useState({ firstName: "", lastName: "", subject: "", phone: "" });
 
@@ -43,12 +45,19 @@ const TeachersPage = () => {
     onSuccess: (res: any, vars) => {
       queryClient.invalidateQueries({ queryKey: ["teachers"] });
       if (!vars.id && res?.credentials) {
-        toast({
+        showSuccess({
           title: "Teacher Added",
           description: `Login: ${res.credentials.email} | Password: ${res.credentials.password}`,
+          icon: "user-plus",
+          accentColor: "#8b5cf6",
         });
       } else {
-        toast({ title: vars.id ? "Teacher Updated" : "Teacher Added", description: "Operation successful" });
+        showSuccess({
+          title: vars.id ? "Teacher Updated" : "Teacher Added",
+          description: vars.id ? "Teacher details saved successfully" : "New teacher registered",
+          icon: vars.id ? "check" : "user-plus",
+          accentColor: vars.id ? "#10b981" : "#8b5cf6",
+        });
       }
       setDialogOpen(false);
     },
@@ -60,7 +69,12 @@ const TeachersPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teachers"] });
       setDeleteConfirm(null);
-      toast({ title: "Teacher Deleted", description: "Teacher removed successfully" });
+      showSuccess({
+        title: "Teacher Deleted",
+        description: "Teacher removed from the system",
+        icon: "trash",
+        accentColor: "#ef4444",
+      });
     },
     onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
@@ -104,6 +118,8 @@ const TeachersPage = () => {
   }
 
   return (
+    <>
+    {NotificationComponent}
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -237,6 +253,7 @@ const TeachersPage = () => {
         portalRoot
       )}
     </div>
+    </>
   );
 };
 

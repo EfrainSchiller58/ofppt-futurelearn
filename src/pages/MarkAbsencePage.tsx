@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSuccessNotification } from "@/components/SuccessNotification";
 import QRSessionCode from "@/components/QRSessionCode";
 
 const MarkAbsencePage = () => {
@@ -19,6 +20,7 @@ const MarkAbsencePage = () => {
   const [notes, setNotes] = useState("");
   const [absentIds, setAbsentIds] = useState<Set<number>>(new Set());
   const { toast } = useToast();
+  const { showSuccess, NotificationComponent } = useSuccessNotification();
 
   const { data: groupsRes, isLoading: loadingGroups } = useQuery({
     queryKey: ["groups"],
@@ -49,7 +51,12 @@ const MarkAbsencePage = () => {
       queryClient.invalidateQueries({ queryKey: ["absences"] });
       queryClient.invalidateQueries({ queryKey: ["absences", "teacher-history"] });
       const group = groups.find((g) => g.id === selectedGroup);
-      toast({ title: "Absences Recorded", description: `${absentIds.size} absence(s) marked for ${group?.name}` });
+      showSuccess({
+        title: "Absences Recorded",
+        description: `${absentIds.size} absence(s) marked for ${group?.name}`,
+        icon: "send",
+        accentColor: "#3b82f6",
+      });
       setAbsentIds(new Set());
     },
     onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
@@ -87,6 +94,8 @@ const MarkAbsencePage = () => {
   })();
 
   return (
+    <>
+    {NotificationComponent}
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-display font-bold">Mark Absences</h1>
@@ -224,6 +233,7 @@ const MarkAbsencePage = () => {
         </motion.div>
       )}
     </div>
+    </>
   );
 };
 

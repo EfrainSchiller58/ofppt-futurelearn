@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSuccessNotification } from "@/components/SuccessNotification";
 import type { Group, Student } from "@/types/api";
 
 const levels = ["1ère Année", "2ème Année", "3ème Année"];
@@ -22,6 +23,7 @@ const GroupsPage = () => {
   const [expandedGroup, setExpandedGroup] = useState<number | null>(null);
   const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
   const { toast } = useToast();
+  const { showSuccess, NotificationComponent } = useSuccessNotification();
 
   useEffect(() => {
     setPortalRoot(document.body);
@@ -52,7 +54,12 @@ const GroupsPage = () => {
     },
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["groups"] });
-      toast({ title: vars.id ? "Group Updated" : "Group Added", description: "Operation successful" });
+      showSuccess({
+        title: vars.id ? "Group Updated" : "Group Added",
+        description: vars.id ? "Group details saved successfully" : "New group created",
+        icon: vars.id ? "check" : "book",
+        accentColor: vars.id ? "#10b981" : "#06b6d4",
+      });
       setDialogOpen(false);
     },
     onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
@@ -63,7 +70,12 @@ const GroupsPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["groups"] });
       setDeleteConfirm(null);
-      toast({ title: "Group Deleted", description: "Group removed successfully" });
+      showSuccess({
+        title: "Group Deleted",
+        description: "Group removed from the system",
+        icon: "trash",
+        accentColor: "#ef4444",
+      });
     },
     onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
@@ -108,6 +120,8 @@ const GroupsPage = () => {
   }
 
   return (
+    <>
+    {NotificationComponent}
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -240,6 +254,7 @@ const GroupsPage = () => {
         portalRoot
       )}
     </div>
+    </>
   );
 };
 

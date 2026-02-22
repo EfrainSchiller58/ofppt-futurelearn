@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSuccessNotification } from "@/components/SuccessNotification";
 import type { Justification } from "@/types/api";
 
 const statusConfig = {
@@ -23,6 +24,7 @@ const AdminJustificationsPage = () => {
   const [reviewNote, setReviewNote] = useState("");
   const [previewingId, setPreviewingId] = useState<number | null>(null);
   const { toast } = useToast();
+  const { showSuccess, NotificationComponent } = useSuccessNotification();
 
   const { data: justificationsRes, isLoading } = useQuery({
     queryKey: ["justifications"],
@@ -37,7 +39,12 @@ const AdminJustificationsPage = () => {
       queryClient.invalidateQueries({ queryKey: ["justifications"] });
       setReviewingId(null);
       setReviewNote("");
-      toast({ title: "Justification Approved", description: "Decision recorded successfully" });
+      showSuccess({
+        title: "Justification Approved",
+        description: "Decision recorded — student notified",
+        icon: "check",
+        accentColor: "#10b981",
+      });
     },
     onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
@@ -48,7 +55,12 @@ const AdminJustificationsPage = () => {
       queryClient.invalidateQueries({ queryKey: ["justifications"] });
       setReviewingId(null);
       setReviewNote("");
-      toast({ title: "Justification Rejected", description: "Decision recorded successfully" });
+      showSuccess({
+        title: "Justification Rejected",
+        description: "Decision recorded — student notified",
+        icon: "shield",
+        accentColor: "#f59e0b",
+      });
     },
     onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
@@ -74,6 +86,8 @@ const AdminJustificationsPage = () => {
   }
 
   return (
+    <>
+    {NotificationComponent}
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -293,6 +307,7 @@ const AdminJustificationsPage = () => {
         )}
       </AnimatePresence>
     </div>
+    </>
   );
 };
 

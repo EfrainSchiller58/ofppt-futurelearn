@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuthStore } from "@/stores/authStore";
+import { useSuccessNotification } from "@/components/SuccessNotification";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -16,6 +17,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const login = useAuthStore((s) => s.login);
+  const { showSuccess, NotificationComponent } = useSuccessNotification();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,12 +25,20 @@ const LoginPage = () => {
 
     try {
       const user = await login(email, password);
-      toast({ title: "Welcome back!", description: `Logged in as ${user.role}` });
-      if (user.must_change_password) {
-        navigate("/account");
-      } else {
-        navigate(user.role === "admin" ? "/dashboard" : user.role === "teacher" ? "/teacher" : "/student");
-      }
+      const dest = user.must_change_password
+        ? "/account"
+        : user.role === "admin"
+        ? "/dashboard"
+        : user.role === "teacher"
+        ? "/teacher"
+        : "/student";
+      showSuccess({
+        title: "Welcome back!",
+        description: `Signed in as ${user.first_name} ${user.last_name}`,
+        icon: "login",
+        accentColor: "#3b82f6",
+      });
+      setTimeout(() => navigate(dest), 1500);
     } catch (err: any) {
       toast({ title: "Login failed", description: err.message || "Invalid credentials", variant: "destructive" });
     } finally {
@@ -47,6 +57,8 @@ const LoginPage = () => {
   };
 
   return (
+    <>
+    {NotificationComponent}
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
       {/* Floating shapes */}
       <div className="floating-shape w-96 h-96 bg-primary/20 -top-20 -left-20" />
@@ -152,6 +164,7 @@ const LoginPage = () => {
         </div>
       </motion.div>
     </div>
+    </>
   );
 };
 

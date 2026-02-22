@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSuccessNotification } from "@/components/SuccessNotification";
 import type { Justification } from "@/types/api";
 
 const statusConfig = {
@@ -23,6 +24,7 @@ const JustificationsPage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewingId, setPreviewingId] = useState<number | null>(null);
   const { toast } = useToast();
+  const { showSuccess, NotificationComponent } = useSuccessNotification();
 
   const { data: justificationsRes, isLoading: loadingJustifications } = useQuery({
     queryKey: ["justifications"],
@@ -45,7 +47,12 @@ const JustificationsPage = () => {
       setReason("");
       setSelectedFile(null);
       setSelectedAbsence(null);
-      toast({ title: "Justification Submitted", description: "Your justification is pending review" });
+      showSuccess({
+        title: "Justification Submitted",
+        description: "Your justification is pending review",
+        icon: "send",
+        accentColor: "#8b5cf6",
+      });
     },
     onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
@@ -89,6 +96,8 @@ const JustificationsPage = () => {
   }
 
   return (
+    <>
+    {NotificationComponent}
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -278,6 +287,7 @@ const JustificationsPage = () => {
         )}
       </AnimatePresence>
     </div>
+    </>
   );
 };
 

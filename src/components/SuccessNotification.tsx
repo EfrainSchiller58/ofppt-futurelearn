@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Shield, Sparkles, X } from "lucide-react";
+import { Check, Shield, Sparkles, X, UserPlus, Trash2, Send, BookOpen, Users, LogIn } from "lucide-react";
+
+type NotificationIcon = "check" | "shield" | "sparkles" | "user-plus" | "trash" | "send" | "book" | "users" | "login";
 
 interface SuccessNotificationProps {
   show: boolean;
   onClose: () => void;
   title: string;
   description: string;
-  icon?: "check" | "shield" | "sparkles";
+  icon?: NotificationIcon;
   accentColor?: string;
 }
 
@@ -85,6 +87,12 @@ const AnimatedIcon = ({ icon, accentColor }: { icon: string; accentColor: string
     check: Check,
     shield: Shield,
     sparkles: Sparkles,
+    "user-plus": UserPlus,
+    trash: Trash2,
+    send: Send,
+    book: BookOpen,
+    users: Users,
+    login: LogIn,
   };
   const IconComponent = iconMap[icon as keyof typeof iconMap] || Check;
 
@@ -327,7 +335,7 @@ export function useSuccessNotification() {
     show: boolean;
     title: string;
     description: string;
-    icon: "check" | "shield" | "sparkles";
+    icon: NotificationIcon;
     accentColor: string;
   }>({
     show: false,
@@ -341,7 +349,7 @@ export function useSuccessNotification() {
     (opts: {
       title: string;
       description: string;
-      icon?: "check" | "shield" | "sparkles";
+      icon?: NotificationIcon;
       accentColor?: string;
     }) => {
       setState({

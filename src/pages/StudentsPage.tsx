@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSuccessNotification } from "@/components/SuccessNotification";
 import type { Student } from "@/types/api";
 
 const StudentsPage = () => {
@@ -20,6 +21,7 @@ const StudentsPage = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
   const { toast } = useToast();
+  const { showSuccess, NotificationComponent } = useSuccessNotification();
 
   useEffect(() => {
     setPortalRoot(document.body);
@@ -48,12 +50,19 @@ const StudentsPage = () => {
     onSuccess: (res: any, vars) => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
       if (!vars.id && res?.credentials) {
-        toast({
+        showSuccess({
           title: "Student Added",
           description: `Login: ${res.credentials.email} | Password: ${res.credentials.password}`,
+          icon: "user-plus",
+          accentColor: "#3b82f6",
         });
       } else {
-        toast({ title: vars.id ? "Student Updated" : "Student Added", description: "Operation successful" });
+        showSuccess({
+          title: vars.id ? "Student Updated" : "Student Added",
+          description: vars.id ? "Student details saved successfully" : "New student registered",
+          icon: vars.id ? "check" : "user-plus",
+          accentColor: vars.id ? "#10b981" : "#3b82f6",
+        });
       }
       setDialogOpen(false);
     },
@@ -67,7 +76,12 @@ const StudentsPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
       setDeleteConfirm(null);
-      toast({ title: "Student Deleted", description: "Student removed successfully" });
+      showSuccess({
+        title: "Student Deleted",
+        description: "Student removed from the system",
+        icon: "trash",
+        accentColor: "#ef4444",
+      });
     },
     onError: (err: Error) => {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -121,6 +135,8 @@ const StudentsPage = () => {
   }
 
   return (
+    <>
+    {NotificationComponent}
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -128,7 +144,7 @@ const StudentsPage = () => {
           <p className="text-muted-foreground text-sm mt-1">{students.length} students registered</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2 border-white/[0.08]" onClick={() => { exportStudentsCSV(filtered as any); toast({ title: "Export Complete", description: `${filtered.length} students exported` }); }}>
+          <Button variant="outline" className="gap-2 border-white/[0.08]" onClick={() => { exportStudentsCSV(filtered as any); showSuccess({ title: "Export Complete", description: `${filtered.length} students exported to CSV`, icon: "check", accentColor: "#10b981" }); }}>
             <Download className="w-4 h-4" /> Export
           </Button>
           <Button onClick={openAdd} className="btn-glow text-primary-foreground border-0 gap-2">
@@ -288,6 +304,7 @@ const StudentsPage = () => {
         portalRoot
       )}
     </div>
+    </>
   );
 };
 
