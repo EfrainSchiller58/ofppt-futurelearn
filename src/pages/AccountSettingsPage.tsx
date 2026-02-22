@@ -103,7 +103,7 @@ const AccountSettingsPage = () => {
             <Input value={lastName} onChange={(e) => setLastName(e.target.value)} className="input-glass" />
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm text-muted-foreground">School email (@ofppt.com)</label>
+            <label className="text-sm text-muted-foreground">Email</label>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-glass" />
           </div>
           <div className="space-y-1.5">
