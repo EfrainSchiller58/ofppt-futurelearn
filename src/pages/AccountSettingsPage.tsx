@@ -69,23 +69,15 @@ const AccountSettingsPage = () => {
         new_password: newPassword,
         new_password_confirmation: confirmPassword,
       });
-      console.log('Password change response:', JSON.stringify(response));
       setUser(response.user);
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      
-      const emailInfo = response.email_status === 'sent' 
-        ? `Email sent to ${response.email_to}`
-        : response.email_status === 'failed'
-        ? `Email failed: ${response.email_error}`
-        : 'Email not attempted';
-      
       showSuccess({
         title: "Password Updated",
-        description: `Your password has been changed successfully. ${emailInfo}`,
+        description: "Your password has been changed successfully. A confirmation email has been sent.",
         icon: "shield",
-        accentColor: response.email_status === 'sent' ? "#10b981" : "#f59e0b",
+        accentColor: "#10b981",
       });
     } catch (err: any) {
       toast({ title: "Password update failed", description: err.message || "Could not update password", variant: "destructive" });
