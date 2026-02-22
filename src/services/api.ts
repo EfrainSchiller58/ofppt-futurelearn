@@ -83,16 +83,17 @@ export const api = {
 
   updateProfile(data: { first_name?: string; last_name?: string; email?: string; phone?: string; profile_image?: File | null }) {
     const formData = new FormData();
+    formData.append("_method", "PATCH");
     if (data.first_name !== undefined) formData.append("first_name", data.first_name);
     if (data.last_name !== undefined) formData.append("last_name", data.last_name);
     if (data.email !== undefined) formData.append("email", data.email);
     if (data.phone !== undefined) formData.append("phone", data.phone);
     if (data.profile_image) formData.append("profile_image", data.profile_image);
 
-    return request<User>("/me/profile", {
-      method: "PATCH",
+    return request<{ data: User }>("/me/profile", {
+      method: "POST",
       body: formData,
-    });
+    }).then(res => res.data);
   },
 
   changePassword(data: { current_password?: string; new_password: string; new_password_confirmation: string }) {
